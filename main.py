@@ -12,7 +12,7 @@ def create_database():
 
     conn = psycopg2.connect(**db_config)
 
-    with open("karsakov_pletenev.sql", "r") as schema_file:
+    with open("migrations.sql", "r") as schema_file:
         schema_script = schema_file.read()
 
     with conn.cursor() as cursor:
