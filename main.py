@@ -11,14 +11,17 @@ def create_database():
     }
 
     conn = psycopg2.connect(**db_config)
-    cursor = conn.cursor()
 
     with open("karsakov_pletenev.sql", "r") as schema_file:
         schema_script = schema_file.read()
 
+    with conn.cursor() as cursor:
+        for st in schema_script.split(";"):
+            if st.strip():
+                e = cursor.execute(st.strip())
+                print(f"Executed: {e} ")
     conn.commit()
-    cursor.close()
-    conn.close()
+
 
     print("База данных и таблицы успешно созданы.")
 
