@@ -1,15 +1,46 @@
 import psycopg2
 
 
-def load_car(id):
-    cursor.execute("SELECT * FROM karsakov_pletenev.CARS WHERE id = %s;", (id,))
-    print(cursor.fetchone())
+def load_car_id(id):
+    cursor.execute("SELECT * FROM karsakov_pletenev.CARS WHERE id = %s;",  (id,))
+    # return cursor.fetchone()
+    res = dict(zip(('id','model','year','color','number','car_type'),cursor.fetchone()))
+    res['dtp'] = []
+    print(res)
+    return res
 
 
-def save_car(id,model,year,color,number,type):
-    cursor.execute("INSERT INTO karsakov_pletenev.CARS VALUES (%s,%s,%s,%s,%s,%s)", (id,model,year,color,number,type))
-    cursor.commit()
+def load_car_number(number):
+    cursor.execute("SELECT * FROM karsakov_pletenev.CARS WHERE number = %s;",  (number,))
+    # return cursor.fetchone()
+    res = dict(zip(('id','model','year','color','number','car_type'),cursor.fetchone()))
+    print(res)
+    return res
+
+
+def load_dtp(id):
+    cursor.execute("SELECT * FROM karsakov_pletenev.CARSDTP WHERE car_id = %s;",  (id,))
+    dtps = set()
+    dtps2 = []
+    rows = cursor.fetchone()
+    print(rows)
+    if rows is None:
+        return []
+    for row in rows:
+        t = dict(zip(('car_id','dtp_id'),row))
+        dtps.add(t['dtp_id'])
+    for dtp in dtps:
+        cursor.execute("SELECT * FROM karsakov_pletenev.DTP WHERE id = %s;", (dtp,))
+        dtps2.append(dict(zip(('id','dtp_date','description'),cursor.fetchone())))
+    return dtps2
+
+
+def save_car(car):
+    cursor.execute("INSERT INTO karsakov_pletenev.CARS (model, year, color, number, car_type) VALUES (%s,%s,%s,%s,%s) RETURNING id", (car.model, car.year, car.color, car.number, car.car_type))
+    id = cursor.fetchone()[0]
+    # cursor.commit()
     conn.commit()
+    return id
 
 
 db_config = {

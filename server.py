@@ -1,7 +1,7 @@
 import flask
 import json
 
-from main import load_car_id, load_car_number
+from main import load_car_id, load_car_number, load_dtp, save_car
 
 app = flask.Flask(__name__)
 
@@ -14,13 +14,13 @@ class Dtp:
 
 
 class Car:
-    def __init__(self, id, model, year, color, number, type, dtp):
+    def __init__(self, id=None, model='', year=0, color='', number='', car_type='', dtp=[]):
         self.id = id
         self.model = model
         self.year = year
         self.color = color
         self.number = number
-        self.type = type
+        self.car_type = car_type
         self.dtp = dtp
 
     def toJson(self):
@@ -74,6 +74,7 @@ def getCarById():
 
     req = RequestId(**data)
     car = load_car_id(req.id)
+    car['dtp'] = load_dtp(car['id'])
 
     return car, 200
 
@@ -84,8 +85,19 @@ def getCarByNumber():
 
     req = RequestNumber(**data)
     car = load_car_number(req.number)
+    car['dtp'] = load_dtp(car['id'])
 
     return car, 200
+
+
+@app.route("/PostCar", methods=["POST"])
+def postcar():
+    data = flask.request.get_json()
+    print(data)
+    req = Car(**data)
+    res = ResponseId(save_car(req))
+
+    return res.toJson()
 
 
 if __name__ == '__main__':
