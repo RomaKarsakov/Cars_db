@@ -71,6 +71,21 @@ def update_dtp(dtp):
     return id
 
 
+def delete_car(id):
+    print(id)
+    cursor.execute("DELETE FROM karsakov_pletenev.CARSDTP WHERE car_id = %s",(id,))
+    cursor.execute("DELETE FROM karsakov_pletenev.CARS WHERE id = %s",(id,))
+
+    conn.commit()
+
+
+def delete_dtp(id):
+    cursor.execute("DELETE FROM karsakov_pletenev.CARSDTP WHERE dtp_id = %s",(id,))
+    cursor.execute("DELETE FROM karsakov_pletenev.DTP WHERE id = %s",(id,))
+
+    conn.commit()
+
+
 db_config = {
     "dbname": "school_db",
     "user": "school",

@@ -1,7 +1,8 @@
 import flask
 import json
 
-from main import load_car_id, load_car_number, load_dtp, save_car, save_dtp, update_car, update_dtp
+from main import load_car_id, load_car_number, load_dtp, save_car, save_dtp, update_car, update_dtp, delete_car, \
+    delete_dtp
 
 app = flask.Flask(__name__)
 
@@ -97,7 +98,7 @@ def postcar():
     req = Car(**data)
     res = ResponseId(save_car(req))
 
-    return res.toJson()
+    return res.toJson(), 200
 
 
 @app.route("/PostDTP", methods=["POST"])
@@ -106,7 +107,7 @@ def postdtp():
     req = Dtp(**data)
     res = ResponseId(save_dtp(req))
 
-    return res.toJson()
+    return res.toJson(), 200
 
 
 @app.route("/PutCar", methods=["PUT"])
@@ -116,7 +117,7 @@ def putcar():
     req = Car(**data)
     res = ResponseId(update_car(req))
 
-    return res.toJson()
+    return res.toJson(), 200
 
 
 @app.route("/PutDTP", methods=["PUT"])
@@ -125,7 +126,23 @@ def putdtp():
     req = Dtp(**data)
     res = ResponseId(update_dtp(req))
 
-    return res.toJson()
+    return res.toJson(), 200
+
+
+@app.route("/DeleteCar", methods=["DELETE"])
+def delcar():
+    data = flask.request.get_json()
+    req = RequestId(**data)
+    delete_car(req.id)
+    return ResponseId(req.id).toJson(), 200
+
+
+@app.route("/DeleteDTP", methods=["DELETE"])
+def deldtp():
+    data = flask.request.get_json()
+    req = RequestId(**data)
+    delete_dtp(req.id)
+    return ResponseId(req.id).toJson(), 200
 
 
 if __name__ == '__main__':
