@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS karsakov_pletenev.DTP (
 
 CREATE TABLE IF NOT EXISTS karsakov_pletenev.CARSDTP (
     car_id integer references karsakov_pletenev.CARS(id),
-    dtp_id integer references karsakov_pletenev.DTP(id)
+    dtp_id integer references karsakov_pletenev.DTP(id),
+    UNIQUE (car_id, dtp_id)
 );
 

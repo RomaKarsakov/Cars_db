@@ -22,11 +22,11 @@ def load_dtp(id):
     cursor.execute("SELECT * FROM karsakov_pletenev.CARSDTP WHERE car_id = %s;",  (id,))
     dtps = set()
     dtps2 = []
-    rows = cursor.fetchone()
-    print(rows)
-    if rows is None:
-        return []
-    for row in rows:
+    while True:
+        row = cursor.fetchone()
+        print(row)
+        if row is None:
+            break
         t = dict(zip(('car_id','dtp_id'),row))
         dtps.add(t['dtp_id'])
     for dtp in dtps:
@@ -38,7 +38,35 @@ def load_dtp(id):
 def save_car(car):
     cursor.execute("INSERT INTO karsakov_pletenev.CARS (model, year, color, number, car_type) VALUES (%s,%s,%s,%s,%s) RETURNING id", (car.model, car.year, car.color, car.number, car.car_type))
     id = cursor.fetchone()[0]
-    # cursor.commit()
+    for dtp in car.dtp:
+        cursor.execute("INSERT INTO karsakov_pletenev.CARSDTP VALUES (%s,%s)", (car.id, dtp))
+    conn.commit()
+    return id
+
+
+def save_dtp(dtp):
+    cursor.execute("INSERT INTO karsakov_pletenev.DTP (dtp_date, description) VALUES (%s,%s) RETURNING id", (dtp.date, dtp.description))
+    id = cursor.fetchone()[0]
+    conn.commit()
+    return id
+
+
+def update_car(car):
+    cursor.execute("UPDATE karsakov_pletenev.CARS SET (model, year, color, number, car_type) = (%s,%s,%s,%s,%s) WHERE id = %s",(car.model, car.year, car.color, car.number, car.car_type, car.id))
+    id = car.id
+    cursor.execute("DELETE FROM karsakov_pletenev.CARSDTP WHERE car_id = %s",(car.id,))
+    for dtp in car.dtp:
+        try:
+            cursor.execute("INSERT INTO karsakov_pletenev.CARSDTP VALUES (%s,%s)", (car.id, dtp))
+        except:
+            pass
+    conn.commit()
+    return id
+
+
+def update_dtp(dtp):
+    cursor.execute("UPDATE karsakov_pletenev.DTP SET (dtp_date, description) = (%s,%s) WHERE id = %s", (dtp.date, dtp.description, dtp.id))
+    id = dtp.id
     conn.commit()
     return id
 
@@ -71,6 +99,5 @@ print("База данных и таблицы успешно созданы.")
 
 if __name__ == "__main__":
     # save_car(int(input()),input(),int(input()),input(),input(),input())
-    load_car(int(input()))
     cursor.close()
     conn.close()

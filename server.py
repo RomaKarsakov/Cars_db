@@ -1,13 +1,13 @@
 import flask
 import json
 
-from main import load_car_id, load_car_number, load_dtp, save_car
+from main import load_car_id, load_car_number, load_dtp, save_car, save_dtp, update_car, update_dtp
 
 app = flask.Flask(__name__)
 
 
 class Dtp:
-    def __init__(self, id, description, date):
+    def __init__(self, id=None, description="", date=""):
         self.id = id
         self.description = description
         self.date = date
@@ -96,6 +96,34 @@ def postcar():
     print(data)
     req = Car(**data)
     res = ResponseId(save_car(req))
+
+    return res.toJson()
+
+
+@app.route("/PostDTP", methods=["POST"])
+def postdtp():
+    data = flask.request.get_json()
+    req = Dtp(**data)
+    res = ResponseId(save_dtp(req))
+
+    return res.toJson()
+
+
+@app.route("/PutCar", methods=["PUT"])
+def putcar():
+    data = flask.request.get_json()
+    print(data)
+    req = Car(**data)
+    res = ResponseId(update_car(req))
+
+    return res.toJson()
+
+
+@app.route("/PutDTP", methods=["PUT"])
+def putdtp():
+    data = flask.request.get_json()
+    req = Dtp(**data)
+    res = ResponseId(update_dtp(req))
 
     return res.toJson()
 
