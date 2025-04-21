@@ -44,6 +44,16 @@ def save_car(car):
     return id
 
 
+def save_car_with_id(car):
+    cursor.execute(
+        "INSERT INTO karsakov_pletenev.CARS (id, model, year, color, number, car_type) VALUES (%s,%s,%s,%s,%s,%s)",
+        (car.id, car.model, car.year, car.color, car.number, car.car_type))
+    for dtp in car.dtp:
+        cursor.execute("INSERT INTO karsakov_pletenev.CARSDTP VALUES (%s,%s)", (car.id, dtp))
+    conn.commit()
+    return None
+
+
 def save_dtp(dtp):
     cursor.execute("INSERT INTO karsakov_pletenev.DTP (dtp_date, description) VALUES (%s,%s) RETURNING id", (dtp.date, dtp.description))
     id = cursor.fetchone()[0]

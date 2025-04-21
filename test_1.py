@@ -23,8 +23,16 @@ def test_post_car(client):
     i = data["id"]
     car['id'] = i
     carbd = main.load_car_id(i)
-    if car != carbd:
-        raise Exception
+    assert car == carbd
     main.delete_car(i)
 
 
+def test_get_car(client):
+    car = Car(1,'model',2001,'blue','123','poiuytr')
+    main.save_car_with_id(car)
+    response = client.get("/CarById", json={'id': 1})
+    assert response.status_code == 200
+    data = json.loads(response.data)
+    assert car.todict() == data
+    print(data)
+    main.delete_car(1)
