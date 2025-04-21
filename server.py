@@ -27,6 +27,9 @@ class Car:
     def toJson(self):
         return json.dumps(self, default=lambda o: o.__dict__)
 
+    def todict(self):
+        return self.__dict__
+
 
 class RequestId:
     def __init__(self, id):
