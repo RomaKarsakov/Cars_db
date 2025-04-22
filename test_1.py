@@ -1,100 +1,112 @@
 import random
+import requests
+from main import *
+from server import Car, Dtp
 
-import pytest
-from server import *
-import main
-
-
-@pytest.fixture
-def client():
-    app.testing = True
-    with app.test_client() as client:
-        yield client
+BASE_URL = "http://127.0.0.1:3000"
 
 
-def test_post_car(client):
-    car = Car(model="model",year=2000,color='red',number=str(random.randint(0,1000000)),car_type='qwertyu').todict()
-    # print(car)
-    response = client.post("/PostCar", json=car)
+def test_post_car():
+    car = Car(model="model", year=2000, color='red', number=str(random.randint(0, 1000000)), car_type='qwertyu').todict()
+    response = requests.post(f"{BASE_URL}/PostCar", json=car)
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = response.json()
     assert "id" in data
     print(data)
     i = data["id"]
     car['id'] = i
-    carbd = main.load_car_id(i)
+    carbd = load_car_id(i)
     assert car == carbd
-    main.delete_car(i)
+    delete_car(i)
 
 
-def test_get_car(client):
-    car = Car(1,'model',2001,'blue','123','poiuytr')
-    main.save_car_with_id(car)
-    response = client.get("/CarById", json={'id': 1})
+def test_get_car():
+    car = Car(1, 'model', 2001, 'blue', '123', 'poiuytr')
+    save_car_with_id(car)
+    response = requests.get(f"{BASE_URL}/CarById", json={'id': 1})
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = response.json()
     assert car.todict() == data
     print(data)
-    main.delete_car(1)
+    delete_car(1)
 
 
-def test_put_car(client):
-    car = Car(1,'model',2001,'blue','123','poiuytr')
-    main.save_car_with_id(car)
-    car2 = Car(1,'model2',20012,'blue2','1232','poiuytr2').todict()
-    response = client.put("/PutCar", json=car2)
+def test_put_car():
+    car = Car(1, 'model', 2001, 'blue', '123', 'poiuytr')
+    save_car_with_id(car)
+    car2 = Car(1, 'model2', 20012, 'blue2', '1232', 'poiuytr2').todict()
+    response = requests.put(f"{BASE_URL}/PutCar", json=car2)
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = response.json()
     print(data)
     i = data["id"]
-    carbd = main.load_car_id(i)
+    carbd = load_car_id(i)
     assert car2 == carbd
-    main.delete_car(i)
+    delete_car(i)
 
 
-def test_delete_car(client):
+def test_delete_car():
     car = Car(1, 'model', 2001, 'blue', '123', 'poiuytr')
-    main.save_car_with_id(car)
-    response = client.delete("/DeleteCar", json={'id': 1})
+    save_car_with_id(car)
+    response = requests.delete(f"{BASE_URL}/DeleteCar", json={'id': 1})
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = response.json()
     print(data)
     assert car.id == data['id']
 
 
-def test_post_dtp(client):
-    dtp = Dtp(description='asdfghjk',date='2010-01-01').todict()
-    response = client.post("/PostDTP", json=dtp)
+def test_post_dtp():
+    dtp = Dtp(description='asdfghjk', date='2010-01-01').todict()
+    response = requests.post(f"{BASE_URL}/PostDTP", json=dtp)
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = response.json()
     assert "id" in data
     print(data)
     i = data["id"]
     dtp['id'] = i
-    dtpbd = main.load_dtp_id(i)
+    dtpbd = load_dtp_id(i)
     assert dtp == dtpbd
-    main.delete_dtp(i)
+    delete_dtp(i)
 
 
-def test_put_dtp(client):
+def test_put_dtp():
     dtp = Dtp(description='asdfghjk', date='2010-01-01')
-    i = main.save_dtp(dtp)
+    i = save_dtp(dtp)
     dtp.id = i
     dtp2 = Dtp(i, 'asdfghjk22', '2210-01-01').todict()
-    response = client.put("/PutDTP", json=dtp2)
+    response = requests.put(f"{BASE_URL}/PutDTP", json=dtp2)
     assert response.status_code == 200
-    data = json.loads(response.data)
-    dtpbd = main.load_dtp_id(data['id'])
+    data = response.json()
+    dtpbd = load_dtp_id(data['id'])
     assert dtpbd == dtp2
-    main.delete_dtp(i)
+    delete_dtp(i)
 
 
-def test_delete_dtp(client):
+def test_delete_dtp():
     dtp = Dtp(description='asdfghjk', date='2010-01-01')
-    i = main.save_dtp(dtp)
+    i = save_dtp(dtp)
     dtp.id = i
-    response = client.delete("/DeleteDTP", json={'id': i})
+    response = requests.delete(f"{BASE_URL}/DeleteDTP", json={'id': i})
     assert response.status_code == 200
-    data = json.loads(response.data)
+    data = response.json()
     print(data)
     assert i == data['id']
+
+
+def test_add_dtp_to_car():
+    dtp = Dtp(description='asdfghjk', date='2010-01-01')
+    i = save_dtp(dtp)
+    car = Car(1, 'model', 2001, 'blue', '123', 'poiuytr')
+    save_car_with_id(car)
+    carwithdtp = Car(1, 'model', 2001, 'blue', '123', 'poiuytr',[i]).todict()
+    response = requests.put(f"{BASE_URL}/PutCar", json=carwithdtp)
+    assert response.status_code == 200
+    data = response.json()
+    print(data)
+    carbd = load_car_id(1)
+    dtpbd = load_dtp(1)
+    carbd['dtp'] = dtpbd
+    carwithdtp['dtp'] = load_dtp(1)
+    assert carwithdtp == carbd
+    delete_car(1)
+    delete_dtp(i)
