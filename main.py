@@ -35,6 +35,15 @@ def load_dtp(id):
     return dtps2
 
 
+def load_dtp_id(id):
+    cursor.execute("SELECT * FROM karsakov_pletenev.DTP WHERE id = %s;", (id,))
+    # return cursor.fetchone()
+    res = dict(zip(('id', 'date', 'description'), cursor.fetchone()))
+    res['date']= str(res['date'])
+    print(res)
+    return res
+
+
 def save_car(car):
     cursor.execute("INSERT INTO karsakov_pletenev.CARS (model, year, color, number, car_type) VALUES (%s,%s,%s,%s,%s) RETURNING id", (car.model, car.year, car.color, car.number, car.car_type))
     id = cursor.fetchone()[0]

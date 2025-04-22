@@ -13,6 +13,9 @@ class Dtp:
         self.description = description
         self.date = date
 
+    def todict(self):
+        return self.__dict__
+
 
 class Car:
     def __init__(self, id=None, model='', year=0, color='', number='', car_type='', dtp=[]):
